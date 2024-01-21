@@ -16,6 +16,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    profilePic: {
+      type: String,
+      default: "https://www.svgrepo.com/show/335455/profile-default.svg",
+    },
   },
   { timestamps: true }
 );
