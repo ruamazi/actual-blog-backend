@@ -3,9 +3,11 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
+export const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+export const usernameRegex = /^[a-z0-9_]{3,20}$/;
+
 export const signup = async (req, res, next) => {
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
   const { username, email, password } = req.body;
   if (
     !username ||
@@ -18,7 +20,15 @@ export const signup = async (req, res, next) => {
     return next(errorHandler(400, "All feilds are required"));
   }
   if (!passwordRegex.test(password)) {
-    return next(errorHandler(400, "Invalid password."));
+    return next(
+      errorHandler(
+        400,
+        "Password should contain at least one lowercase letter, one uppercase letter,one digit one special character from the set @$!%*?&."
+      )
+    );
+  }
+  if (!usernameRegex.test(username)) {
+    return next(errorHandler(400, "Username format is not allowed"));
   }
   const useExist = await User.findOne({ username });
   if (useExist) {
@@ -53,7 +63,7 @@ export const signin = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return next(errorHandler(400, "Wrong credentials."));
+      return next(errorHandler(400, "User not found."));
     }
     const validPasswor = bcryptjs.compareSync(password, user.password);
     if (!validPasswor) {
