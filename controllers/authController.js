@@ -51,7 +51,7 @@ export const signup = async (req, res, next) => {
     return res.status(200).json({ success: true, message: "User created." });
   } catch (err) {
     console.log(err);
-    next(err);
+    return next(err);
   }
 };
 
@@ -72,6 +72,7 @@ export const signin = async (req, res, next) => {
     const token = jwt.sign(
       {
         _id: user._id,
+        isAdmin: user.isAdmin,
       },
       process.env.SEC
     );
@@ -95,7 +96,7 @@ export const googleAuth = async (req, res, next) => {
     if (user) {
       const token = jwt.sign({ _id: user._id }, process.env.SEC);
       const { password, ...rest } = user._doc;
-      res
+      return res
         .status(200)
         .cookie("token", token, {
           httpOnly: true,
@@ -117,8 +118,11 @@ export const googleAuth = async (req, res, next) => {
     });
     await newUser.save();
     const { password, ...rest } = newUser._doc;
-    const token = jwt.sign({ _id: newUser._id }, process.env.SEC);
-    res
+    const token = jwt.sign(
+      { _id: newUser._id, isAdmin: newUser.isAdmin },
+      process.env.SEC
+    );
+    return res
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
@@ -126,6 +130,6 @@ export const googleAuth = async (req, res, next) => {
       .json(rest);
   } catch (err) {
     console.log(err);
-    next(err);
+    return next(err);
   }
 };

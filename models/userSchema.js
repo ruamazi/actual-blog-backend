@@ -20,6 +20,10 @@ const userSchema = new Schema(
       type: String,
       default: "https://www.svgrepo.com/show/335455/profile-default.svg",
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
